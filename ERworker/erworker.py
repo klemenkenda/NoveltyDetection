@@ -1,4 +1,3 @@
-#%%
 from eventregistry import *
 import time
 import json
@@ -25,25 +24,28 @@ class ERReader:
         query.setDateLimit(startdate, enddate)
         query.addConcept(self.ereg.getConceptUri(concept))
         query.addRequestedResult(RequestArticlesInfo(
-            count=self.perpage,page=1,
+            count=self.perpage,
+            page=1,
             returnInfo=ReturnInfo(
                 articleInfo=ArticleInfoFlags(
                     bodyLen=10, duplicateList=True, concepts=True,
                     categories=True, location=True, image=True
                 ))))
         res = self.ereg.execQuery(query)
-        self.pages = res["articles"]["pages"]
-        print(self.pages, " pages")
-        
-        for i in range(self.pages, 0, -1):
-            print(i)
-            new = self.get_articles_page(concept, startdate, enddate, i)
-            self.results.extend(new)
-            self.print_articles(new)
-        
+        if "articles" in res:
+            self.pages = res["articles"]["pages"]
+            print(self.pages, " pages")
+
+            for i in range(self.pages, 0, -1):
+                print(i)
+                new = self.get_articles_page(concept, startdate, enddate, i)
+                self.results.extend(new)
+                self.print_articles(new)
+
         return self.results
 
     def print_articles(self, new):
+        """Prints articles to the STDOUT"""
         for article in new:
             print(article["date"], article["time"])
 
@@ -53,7 +55,7 @@ class ERReader:
         query.setDateLimit(startdate, enddate)
         query.addConcept(self.ereg.getConceptUri(concept))
         query.addRequestedResult(RequestArticlesInfo(
-            count=self.perpage, page=pagenum, 
+            count=self.perpage, page=pagenum,
             returnInfo=ReturnInfo(
                 articleInfo=ArticleInfoFlags(
                     bodyLen=300000, duplicateList=True, concepts=True,
@@ -81,11 +83,15 @@ class ERReader:
 
 
     def save_articles(self, concept):
+        """Saves articles to a file."""
         with open(concept + ".json", 'w') as outfile:
-            json.dump(self.results, outfile)
+            for entry in self.results:
+                print("x")
+                json.dump(entry, outfile)
+                outfile.write("\n")
 
 
-ereader = ERReader(5, 2)
-results = ereader.get_articles_period("Borut Pahor", datetime.date(2016, 12, 1), datetime.date(2017, 1, 1))
-ereader.save_articles("BorutPahor")
+ereader = ERReader(200, 100)
+results = ereader.get_articles_period("Peter Prevc", datetime.date(2014, 1, 1), datetime.date(2017, 2, 1))
+ereader.save_articles("PeterPrevcENG")
 
