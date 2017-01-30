@@ -66,25 +66,27 @@ var aggrAD = {
     type: 'nnAnomalyDetector',
     inAggrSpV: 'ftrSpaceAggr',
     inAggrTm: 'tickAggr',
-    rate: [0.15, 0.5, 0.7],
+    rate: [0.5, 0.3, 0.1],
     windowSize: 200
 };
 
 // Create the anomaly detection aggregator
 var anomaly = articles.addStreamAggr(aggrAD);
 
-
-
 // Define monitoring stream aggregate.
 let monitoringAggr = articles.addStreamAggr({
     onAdd: (rec) => {        
         // console.log(rec)
-    	console.log(anomaly.getInteger(), rec["Title"]);
+        let explanation = anomaly.saveJson().explanation;
+        var distance = 0;
+        if ("distance" in explanation) distance = explanation.distance;
+        // console.log(explanation);
+        if (distance > 0) console.log(anomaly.getInteger(), rec["Title"], distance);
     }
 })
 
 
-// load articles into the store
+// load articles into the store via simulated stream
 let ARTICLES_FILENAME = "../ERworker/data/PeterPrevcENG.json";
 
 let lineReader = readline.createInterface({
