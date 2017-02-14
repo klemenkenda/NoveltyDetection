@@ -47,8 +47,8 @@ let aggrFSA = {
 
 let ftrSpaceAggr = articles.addStreamAggr(aggrFSA);
 
-// define a new time series tick stream aggregator for the 'Cars' store, that takes the values from the 'NumberOfCars' field
-// and the timestamp from the 'Time' field.
+// define a 'fake' time series tick stream aggregator for the 'Articles' store
+// to trigger feature space aggregate
 let aggrT = {
     name: "tickAggr",
     type: "timeSeriesTick",
@@ -66,7 +66,7 @@ var aggrAD = {
     type: 'nnAnomalyDetector',
     inAggrSpV: 'ftrSpaceAggr',
     inAggrTm: 'tickAggr',
-    rate: [0.5, 0.3, 0.1],
+    rate: [0.2, 0.05, 0.01],
     windowSize: 200
 };
 
@@ -81,13 +81,17 @@ let monitoringAggr = articles.addStreamAggr({
         var distance = 0;
         if ("distance" in explanation) distance = explanation.distance;
         // console.log(explanation);
-        if (distance > 0) console.log(anomaly.getInteger(), rec["Title"], distance);
+        if (anomaly.getInteger() > 2) console.log(anomaly.getInteger(), rec["Title"], distance);
+        fs.appendFileSync('eval.csv', anomaly.getInteger() + ";~" + rec["Title"] + "~;" + tickAggr.getTimestamp() + "\n");
     }
 })
 
+// add header to log file
+fs.writeFileSync('eval.csv', "rate;title;timestamp\n");
+
 
 // load articles into the store via simulated stream
-let ARTICLES_FILENAME = "../ERworker/data/PeterPrevcENG.json";
+let ARTICLES_FILENAME = "../ERworker/data/EuropeanComissionENG.json";
 
 let lineReader = readline.createInterface({
     input: fs.createReadStream(ARTICLES_FILENAME)
@@ -95,6 +99,10 @@ let lineReader = readline.createInterface({
 
 // insert new article into the articles store
 lineReader.on('line', function(line) {
-    let currentArticle = JSON.parse(line);    
-    articles.push({ Time: currentArticle["date"] + "T" + currentArticle["time"], Text: currentArticle["body"], Title: currentArticle["title"], Number: 1});
+    try {
+        let currentArticle = JSON.parse(line);    
+        articles.push({ Time: currentArticle["date"] + "T" + currentArticle["time"], Text: currentArticle["body"], Title: currentArticle["title"], Number: 1});
+    } catch (e) {
+        console.log(e);
+    }
 })

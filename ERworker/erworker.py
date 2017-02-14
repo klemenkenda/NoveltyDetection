@@ -92,6 +92,6 @@ class ERReader:
 
 
 ereader = ERReader(200, 100)
-results = ereader.get_articles_period("Peter Prevc", datetime.date(2014, 1, 1), datetime.date(2017, 2, 1))
+results = ereader.get_articles_period("Peter Prevc", datetime.date(2014, 1, 1), datetime.date(2017, 3, 1))
 ereader.save_articles("PeterPrevcENG")
 
