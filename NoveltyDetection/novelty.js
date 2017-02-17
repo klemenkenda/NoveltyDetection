@@ -67,7 +67,7 @@ var aggrAD = {
     inAggrSpV: 'ftrSpaceAggr',
     inAggrTm: 'tickAggr',
     rate: [0.2, 0.05, 0.01],
-    windowSize: 200
+    windowSize: 4000
 };
 
 // Create the anomaly detection aggregator
@@ -91,7 +91,7 @@ fs.writeFileSync('eval.csv', "rate;title;timestamp\n");
 
 
 // load articles into the store via simulated stream
-let ARTICLES_FILENAME = "../ERworker/data/EuropeanComissionENG.json";
+let ARTICLES_FILENAME = "../ERworker/data/MicrosoftENG.json";
 
 let lineReader = readline.createInterface({
     input: fs.createReadStream(ARTICLES_FILENAME)
